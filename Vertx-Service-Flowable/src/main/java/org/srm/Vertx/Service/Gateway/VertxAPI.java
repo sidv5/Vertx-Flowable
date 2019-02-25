@@ -47,9 +47,9 @@ public class VertxAPI extends AbstractVerticle {
 			});*/
 			
 			getVertx().eventBus().publish("flowable.feed.req", rC.request().getParam("name"));
-			rC.response().end("hh");
-			getVertx().eventBus().consumer("flowable.fed.resp", reply ->  {
-				
+			//rC.response().end("hh");
+			getVertx().eventBus().consumer("flowable.fed.resp", message ->  {
+				rC.response().end(message.body().toString());
 			});
 			/*, handler -> {
 				getVertx().eventBus().send("service.validate", rC.request().getParam("name"));	

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.ProcessEngineConfiguration;
@@ -25,6 +26,7 @@ import org.srm.Vertx.Service.Gateway.VertxAPI;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
@@ -43,7 +45,8 @@ public class FlowableStartEvent extends AbstractVerticle {
 		
 		ProcessEngineConfigurationImpl processEngineConfig = (ProcessEngineConfigurationImpl) cfg;
 		processEngineConfig.initVariableTypes();
-		processEngineConfig.getVariableTypes().addType(new CustomObjectType("vertx", Vertx.class));
+		processEngineConfig.getVariableTypes().addType(new CustomObjectType("vertx", Vertx.class))
+		.addType(new CustomObjectType("message",Message.class));
 
 		ProcessEngine processEngine = processEngineConfig.buildProcessEngine();
 
@@ -63,8 +66,8 @@ public class FlowableStartEvent extends AbstractVerticle {
 		
 		
 		getVertx().eventBus().consumer("flowable.feed.req", message -> {
-			variables.put("name", message.body().toString());
 
+			variables.put("name", message.body().toString());
 			RuntimeService runtimeService = processEngine.getRuntimeService();
 			ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("vertx", variables);
 
@@ -72,7 +75,7 @@ public class FlowableStartEvent extends AbstractVerticle {
 			List<Task> tasks = taskService.createTaskQuery().list();
 			Task task = tasks.get(0);
 			taskService.complete(task.getId());
-
+			System.out.println("End");
 			/*
 			 * HistoryService historyService = processEngine.getHistoryService();
 			 * HistoricVariableInstance historicVariables = historyService

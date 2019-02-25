@@ -32,7 +32,7 @@
 		<sequenceFlow id="flow5" sourceRef="servicetask2"
 			targetRef="exclusivegateway1"></sequenceFlow>
 		<serviceTask id="servicetask2" name="Validate Message"
-			flowable:class="org.srm.Vertx.Service.Flowable.Delegates.ServiceValidateDelegate"></serviceTask>
+			flowable:class="org.srm.Vertx.Service.Flowable.Delegates.ServiceValidateDelegate" ></serviceTask>
 		<serviceTask id="servicetask3"
 			name="Send Error Message to Client"
 			flowable:class="org.srm.Vertx.Service.Flowable.Delegates.ServiceErrorDelegate"></serviceTask>
