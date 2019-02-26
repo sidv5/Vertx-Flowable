@@ -1,20 +1,8 @@
 package org.srm.Vertx.Service.Gateway;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.flowable.engine.ProcessEngine;
-import org.flowable.engine.ProcessEngineConfiguration;
-import org.flowable.engine.RepositoryService;
-import org.flowable.engine.RuntimeService;
-import org.flowable.engine.impl.cfg.StandaloneProcessEngineConfiguration;
-import org.flowable.engine.repository.Deployment;
-import org.flowable.engine.repository.ProcessDefinition;
-import org.flowable.engine.runtime.ProcessInstance;
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
-import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
@@ -34,27 +22,12 @@ public class VertxAPI extends AbstractVerticle {
 		 */
 
 		Router route = Router.router(vertx);
-
 		route.get("/:name").handler(rC -> {
-
-			/*getVertx().eventBus().send("flowable.feed", rC.request().getParam("name"), reply -> {
-				if (reply.succeeded()) {
-					log.info(reply.result().body().toString());
-					rC.response().end(reply.result().body().toString());
-				} else {
-					rC.response().end("No Reply!");
-				}
-			});*/
-			
-			getVertx().eventBus().publish("flowable.feed.req", rC.request().getParam("name"));
-			rC.response().end("hh");
-			getVertx().eventBus().consumer("flowable.fed.resp", reply ->  {
-				
+			getVertx().eventBus().send("flowable.feed.req", rC.request().getParam("name"), reply -> {
+				HttpServerResponse response = rC.response();
+				response.setChunked(true);
+				response.end(reply.result().body().toString());
 			});
-			/*, handler -> {
-				getVertx().eventBus().send("service.validate", rC.request().getParam("name"));	
-				
-			});*/
 		});
 		vertx.createHttpServer().requestHandler(route).listen(PORT);
 		log.info("Server running on port : " + PORT);
@@ -64,6 +37,4 @@ public class VertxAPI extends AbstractVerticle {
 	public void stop(Future<Void> stopFuture) throws Exception {
 		super.stop(stopFuture);
 	}
-	
-	
 }
